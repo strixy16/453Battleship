@@ -8,13 +8,21 @@ h = 5
 policy = [[[0.125 for y in range(3)] for x in range(3)] for z in range(num)]
 for i in policy:
     i[1][1] = 0 # middle one is 0, only access when middle is hit
-    
-##for i in policy:
-##    print(i)
+
+
+qTable = dict() # key = state, value = [action1, action2,..., action8]
+# just store as they occur? Start with 0? Will be tupples and linked list? ((state, action):value) = (([board],tile):value)
+
+returns = dict() # will average for qTable
+start = 0 # keeps track of where prev episode was in qTable/tracker
+
 action = random.randint(0,num)
 forever = 15000
 mode = "random"
 for i in range(forever):
+    t = 0 # to keep track of steps
+    # refreshes every time a game is won, keeps track of states and actions (probably don't need it since you keep track of t, the key)
+    tracker = dict() # key = (state, action), value = t 
     while mode != "win":
         if mode == "random":
             # must convert action, maybe have a get function that converts and returns that slot?
@@ -53,13 +61,15 @@ for i in range(forever):
                 policy[w*j[0] + j[1]] = [[p/summed for p in q] for q in policy[w*j[0] + j[1]]]             
                 # modifications should be done
                 
-            t = 0
-            for i in ships: # check if hit
-                t += a in i
-            if t == 1: # hit
+            target = 0
+            for i in ships: # check if hit MAY NOT BE NECESSARY!!!
+                target += a in i
+            if target == 1: # hit
                 mode = "target"
                     
         elif mode == "target": # have hit, action based on policy
+            ### Need to change this based on e soft policy ####
+            # THIS DOESNT TAKE MAX WITH ESOFT, MUST FIX, TOO TIRED TO DO IT NOW
             # state space is only 9 blocks around hit
             myPolicy = policy[x][y]
             tempPolicy = [0 for _ in range(9)]
@@ -94,17 +104,41 @@ for i in range(forever):
             # if sunk, check win, else mode = "random"
             # board should notify if sunk
             if sunk: # SUNK IS NOT INITIALIZED
-                # GET REWARD?
-                mode = "random"
+                # GET REWARD, PROPAGATE BACK UNTIL START
+                if win:
+                    mode = "win"
+                else:
+                    mode = "random"
+                
+                # THESE MAY NEED TO BE CHANGED
+                reward = 10 # for sinking. reward is -1 for everything else
+                gamma = 0.9
+                G = 0
+                G = gamma*G + reward
+                reward = -1
+                for j in range(t, start, -1): # go backwards, calculate G
+                    G = gamma*G + reward
+                # have goal, state action will not have already appeared for this episode, can skip.
+                
+                # need to find terminating state and action. Will be t -> most recent state
+                if tracker[t] in returns:
+                    returns[tracker[t]].append(G)
+                else:
+                    returns[tracker[t]] = [G]
+                # find out which square was hit on the 3x3    
+                qTable[t][3*tempX + tempY] = statistics.mean(returns[tracker[t]])
+                start = t
+                # t increments below again
+                
             
             # if hit ???? I have no clue
-            if hit:
+            elif hit:
                 pass
 
             # if miss, adjust policy same as random
             # LITERALLY JUST COPY/PASTE. SHOULD PROBABLY MAKE INTO A FUNCTION
             # need to modify +-x, +-y and every combo thereof
-            if miss: # still use policy - MISS IS NOT INITIALIZED
+            elif miss: # still use policy - MISS IS NOT INITIALIZED
                 neighbours = [[x-1, y-1],[x-1,y],[x-1, y+1],
                               [x,y-1],[x, y+1],[x+1, y-1],[x+1, y],[x+1, y+1]]
                 for j in neighbours:
@@ -134,5 +168,10 @@ for i in range(forever):
                     # modifications should be done
                 # must set x and y to be chosen coordinate if hit. If miss, stays the same
                     
-            
-            
+           # store state and action in tracker, which records all 
+           if board not in qTable: # only add new states for all
+               # yikes
+               qTable[str(board)] = [0,0,0,0,0,0,0,0] # all possible targets
+            # add every single move to tracker
+            tracker[t] = board 
+            t += 1
