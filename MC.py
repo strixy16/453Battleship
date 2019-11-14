@@ -1,10 +1,13 @@
 import random
+
+
 # assume we have the board and all of the ships
 
 # make a policy (of 9 for each square)
 num = 25 # width of board * height of board, get from Kenny's thing
 w = 5
 h = 5
+epsilon = 0.05
 policy = [[[0.125 for y in range(3)] for x in range(3)] for z in range(num)]
 for i in policy:
     i[1][1] = 0 # middle one is 0, only access when middle is hit
@@ -66,6 +69,7 @@ for i in range(forever):
                 target += a in i
             if target == 1: # hit
                 mode = "target"
+                
                     
         elif mode == "target": # have hit, action based on policy
             ### Need to change this based on e soft policy ####
@@ -80,26 +84,38 @@ for i in range(forever):
                     count += k # cumulative percent
                     tempPolicy[countIn] = count
                     countIn += 1 # index of tempPolicy
-                    
+            # action must be maximum for the state, then use e-greedy? (not e-soft, since we never do to some actions)
+            #action = max(qTable[str(board)])
+            
             chance = random.random()
-            count = 0 # tracks index of tempPolicy
-            for j in tempPolicy:
-                if chance < j:
-                    if count < 3:
-                        tempX = x-1
-                    elif count > 5:
-                        tempX = x+1
-                    else:
-                        tempX = x
-                    if count%3 == 0:
-                        tempY = y-1
-                    elif count%3 == 2:
-                        tempY = y+1
-                    else:
-                        tempY = y
-                    action = w*tempX + tempY # action of board frame of reference               
-                    break
-                count += 1
+            allActions = qTable(str(board)) # get q values for given state
+            # get policy for choosing max action
+            actionIndex = allActions.index(max(allActions))
+            
+            if epsilon/abs(tempPolicy[actionIndex]) > chance: # probability of chosing action ** pretty sure this is wrong
+                tempX = int(actionIndex/3)
+                tempY = actionIndex%3
+                action = w*tempX + tempY # board frame of reference (0-24)
+            else: # going greedy
+                chance = random.random() # generate a new random number
+                count = 0 # tracks index of tempPolicy
+                for j in tempPolicy:
+                    if chance < j:
+                        if count < 3:
+                            tempX = x-1
+                        elif count > 5:
+                            tempX = x+1
+                        else:
+                            tempX = x
+                        if count%3 == 0:
+                            tempY = y-1
+                        elif count%3 == 2:
+                            tempY = y+1
+                        else:
+                            tempY = y
+                        action = w*tempX + tempY # action of board frame of reference               
+                        break # have found correct corresponding action
+                    count += 1
             # we have our action. Need to take action -> modifying policies, checking if sunk/hit/miss
             # if sunk, check win, else mode = "random"
             # board should notify if sunk
