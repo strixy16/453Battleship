@@ -1,6 +1,7 @@
 from board import bInit
 from agents import Agent
 
+#dimensions of the board
 w = 5
 h = 5
 
