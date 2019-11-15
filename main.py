@@ -1,10 +1,10 @@
-from board import Board, bInit
-from agents import setShips
+from board import bInit
+from agents import Agent
 
-w = 10
-h = 10
+w = 5
+h = 5
 
 if __name__ == "__main__":
-	agent1 = Board(h, w, setShips(h,w))
-	agent2 = Board(h, w, setShips(h,w))
+	agent1 = Agent(h, w)
+	agent2 = Agent(h, w)
 	bInit(agent1, agent2, h, w)

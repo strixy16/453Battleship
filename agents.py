@@ -1,8 +1,14 @@
 import numpy as np
 import random
 
+class Agent:
+	def __init__(self,h,w):
+		self.ships = setShips(h,w)
+		self.q = np.zeros(shape=(3,3,3,3,3,3,3,3,8))
+		self.enemyBoard = np.full((h,w), 'u')
+
 def setShips(h, w):
-	shipLen = [2,2,3]
+	shipLen = [2,2,2]
 	squares = {i for i in range(h * w)}
 	ships = []
 
@@ -39,3 +45,4 @@ def setShips(h, w):
 		del(shipLen[shipIndex])
 	
 	return(ships)
+

@@ -1,13 +1,6 @@
 import tkinter as tk
 from math import floor
 
-class Board:
-	def __init__(self, width, height, shipL):
-		self.ships = shipL
-		self.x = width
-		self.y = height
-		print(shipL)
-	
 def bInit(p1, p2, h, w): #p1 and p2 are Board classes
 	global master
 	master = tk.Tk()
