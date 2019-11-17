@@ -1,5 +1,6 @@
 import numpy as np
 import random
+from math import floor
 
 class Agent:
 	def __init__(self,h,w):
@@ -34,15 +35,20 @@ def setShips(h, w):
 							break
 				if tempB: #if we do place every square of the ship
 					tempA = [] #temporary array we will append to ships
+
 					for i in range(1, shipToPlace + 1):
-						tempA.append(sSquare + d * i) #appending the positions of each square
-						squares.remove(sSquare + d * i) #removing the tiles from the set 
+						tempCoords = []  # temporary array for the coordinates
+						print(sSquare + d * i)
+						tempCoords.append(floor((sSquare + d * i) / h)) #appending the positions of each square
+						tempCoords.append((sSquare + d * i) % w) #appending the positions of each square
+						tempA.append(tempCoords)
+						squares.remove(sSquare + d * i) #removing the tiles from the set
 					ships.append(tempA)
 					placed = True
 					break
 				else:
 					directions.remove(d) 
 		del(shipLen[shipIndex]) 
-	
+	print(ships)
 	return(ships)
 

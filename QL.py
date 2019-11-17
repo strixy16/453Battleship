@@ -110,11 +110,6 @@ def QLearning():
             # currState = nextState
 
 
-
-
-
-
-
     # for i in range(forever):
     #
     #     while not won:
