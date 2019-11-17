@@ -5,7 +5,7 @@ class Agent:
 	def __init__(self,h,w):
 		self.ships = setShips(h,w) #positions of the ships, array shape = (3,2)
 		self.q = np.zeros(shape=(3,3,3,3,3,3,3,3,8)) #general 3x3 policy
-		self.enemyBoard = np.full((h,w), 'u') #what we know about the enemy board, everything is unchecked to start
+		self.enemyBoard = np.zeros((h,w)) #what we know about the enemy board, everything is unchecked to start
 
 def setShips(h, w):
 	shipLen = [2,2,2] #length of every ship

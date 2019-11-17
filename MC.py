@@ -20,7 +20,7 @@ for i in policy:
 #qTable = dict() # key = state, value = [action1, action2,..., action8]
 # just store as they occur? Start with 0? Will be tupples and linked list? ((state, action):value) = (([board],tile):value)
 
-returns = dict() # will average for qTable
+#returns = dict() # will average for qTable
 start = 0 # keeps track of where prev episode was in qTable/tracker
 
 action = random.randint(0,num)
@@ -139,6 +139,7 @@ for i in range(forever):
 ##                    x = placeHitX
 ##                    y = placeHitY
                 else:
+                    # check if elsewhere hit
                     mode = "random"
                 
                 # THESE MAY NEED TO BE CHANGED
@@ -146,17 +147,17 @@ for i in range(forever):
                 # don't need to calculate, 1st one is just reward of 10
                 G = 10
                 # append to rewards
-                rewards[b[0]][b[1]][b[2]][b[3]][b[4]][b[5]][b[6]][b[7]][b[index]]].append(G)
+                returns[[b[0]][b[1]][b[2]][b[3]][b[4]][b[5]][b[6]][b[7]][b[index]]].append(G)
                 gamma = 0.9
                
                 actionReward = -1
                 for j in range(t-1, start, -1): # go backwards, calculate G
                     k = tracker[j]
                     G = gamma*G + actionReward
-                    reward[k[0]k[1]k[2]k[3]k[4]k[5]k[6]k[7]k[8]].append(G)
-                    ave = statistics.mean(k[0]k[1]k[2]k[3]k[4]k[5]k[6]k[7]k[8])
-                    q(k[0]k[1]k[2]k[3]k[4]k[5]k[6]k[7]k[8]) = ave
-                    qState = q(k[0]k[1]k[2]k[3]k[4]k[5]k[6]k[7])
+                    returns[k[0]][k[1]][k[2]][k[3]][k[4]][k[5]][k[6]][k[7]][k[8]].append(G)
+                    ave = statistics.mean([k[0], k[1], k[2], k[3], k[4], k[5], k[6], k[7], k[8]])
+                    q[k[0]][k[1]][k[2]][k[3]][k[4]][k[5]][k[6]][k[7]][k[8]] = ave
+                    qState = q[k[0]][k[1]][k[2]][k[3]][k[4]][k[5]][k[6]][k[7]][k[8]]
                     argMax = qState.index(max(qState))
                     # Now we do e-greedy
                     for a in range(8):

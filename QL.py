@@ -54,7 +54,7 @@ def QLearning():
     # location = chooseAction() # needs to be an x,y
     hit = False
     tempState = []
-    for y in range(location[1] - 1, location[0] + 2):
+    for y in range(location[1] - 1, location[1] + 2):
         for x in range(location[0] - 1, location[0] + 2):
             if x != location[0] and y != location[1]:
                 tempState.(boardVal(x, y))
@@ -78,7 +78,7 @@ def QLearning():
                 pass
 
             reward = rewardMatrix[result]
-            temp2State = tempState
+            temp2State = copy(tempState)
             temp2State = temp2State[qA]
 
             newS = q[temp2State[0]][temp2State[1]][temp2State[2]][temp2State[3]][temp2State[4]][temp2State[5]][temp2State[6]][temp2State[7]]
@@ -98,7 +98,7 @@ def QLearning():
                     for x in range(bA[0] - 1, bA[0] + 2):
                         if x != bA[0] and y != bA[1]:
                             tempState.(boardVal(x, y))
-            else:
+            else: # sunk the ship
                 hit = False
 
         else:
