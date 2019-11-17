@@ -29,10 +29,10 @@ def bInit(p1, p2, h, w): #p1 and p2 are classes of type Agent, will probably cha
 			xPos = lGridStartW + j*rHeight
 			window.create_rectangle(xPos,yPos,xPos+rHeight,yPos+rHeight,outline='black')
 	
-	for i in range(len(p1.ships)):
-		for j in range(len(p1.ships[i])):
-			xPos = lGridStartW + ((p1.ships[i][j][1] * rHeight))
-			yPos = gridStartH + (p1.ships[i][j][0] * rHeight)
+	for i in range(len(p2.ships)):
+		for j in range(len(p2.ships[i])):
+			xPos = lGridStartW + ((p2.ships[i][j][1] * rHeight))
+			yPos = gridStartH + (p2.ships[i][j][0] * rHeight)
 			window.create_rectangle(xPos,yPos,xPos+rHeight,yPos+rHeight,fill='#00e0f0')
 
 	#separator for the a e s t h e t i c c 
@@ -45,10 +45,10 @@ def bInit(p1, p2, h, w): #p1 and p2 are classes of type Agent, will probably cha
 			xPos = rGridStartW + j*rHeight
 			window.create_rectangle(xPos,yPos,xPos+rHeight,yPos+rHeight,outline='black')
 
-	for i in range(len(p2.ships)):
-		for j in range(len(p2.ships[i])):
-			xPos = rGridStartW + ((p2.ships[i][j][1] * rHeight))
-			yPos = gridStartH + (p2.ships[i][j][0] * rHeight)
+	for i in range(len(p1.ships)):
+		for j in range(len(p1.ships[i])):
+			xPos = rGridStartW + ((p1.ships[i][j][1] * rHeight))
+			yPos = gridStartH + (p1.ships[i][j][0] * rHeight)
 			window.create_rectangle(xPos, yPos, xPos+rHeight, yPos+rHeight, fill='#bc4fff')
 
 	window.pack()
