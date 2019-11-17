@@ -38,7 +38,6 @@ def setShips(h, w):
 
 					for i in range(1, shipToPlace + 1):
 						tempCoords = []  # temporary array for the coordinates
-						print(sSquare + d * i)
 						tempCoords.append(floor((sSquare + d * i) / h)) #appending the positions of each square
 						tempCoords.append((sSquare + d * i) % w) #appending the positions of each square
 						tempA.append(tempCoords)
@@ -48,7 +47,6 @@ def setShips(h, w):
 					break
 				else:
 					directions.remove(d) 
-		del(shipLen[shipIndex]) 
-	print(ships)
+		del(shipLen[shipIndex])
 	return(ships)
 

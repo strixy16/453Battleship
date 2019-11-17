@@ -3,7 +3,6 @@ from math import floor
 
 #initialize the starting board
 def bInit(p1, p2, h, w): #p1 and p2 are classes of type Agent, will probably change in the future to just take the array of ship locations
-	
 	#tkinter setup
 	global master
 	master = tk.Tk()
@@ -32,8 +31,8 @@ def bInit(p1, p2, h, w): #p1 and p2 are classes of type Agent, will probably cha
 	
 	for i in range(len(p1.ships)):
 		for j in range(len(p1.ships[i])):
-			xPos = lGridStartW + ((p1.ships[i][j] % h)*rHeight)
-			yPos = gridStartH + (floor(p1.ships[i][j] / h)*rHeight)
+			xPos = lGridStartW + ((p1.ships[i][j][1] * rHeight))
+			yPos = gridStartH + (p1.ships[i][j][0] * rHeight)
 			window.create_rectangle(xPos,yPos,xPos+rHeight,yPos+rHeight,fill='#00e0f0')
 
 	#separator for the a e s t h e t i c c 
@@ -44,13 +43,13 @@ def bInit(p1, p2, h, w): #p1 and p2 are classes of type Agent, will probably cha
 		yPos = gridStartH + i*rHeight
 		for j in range(w):
 			xPos = rGridStartW + j*rHeight
-			window.create_rectangle(xPos,yPos,xPos+rHeight,yPos+rHeight,outline='black') 
-	
+			window.create_rectangle(xPos,yPos,xPos+rHeight,yPos+rHeight,outline='black')
+
 	for i in range(len(p2.ships)):
 		for j in range(len(p2.ships[i])):
-			xPos = rGridStartW + ((p2.ships[i][j] % h)*rHeight)
-			yPos = gridStartH + (floor(p2.ships[i][j] / h)*rHeight)
-			window.create_rectangle(xPos,yPos,xPos+rHeight,yPos+rHeight,fill='#bc4fff')
+			xPos = rGridStartW + ((p2.ships[i][j][1] * rHeight))
+			yPos = gridStartH + (p2.ships[i][j][0] * rHeight)
+			window.create_rectangle(xPos, yPos, xPos+rHeight, yPos+rHeight, fill='#bc4fff')
 
 	window.pack()
 
