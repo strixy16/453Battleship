@@ -9,30 +9,39 @@ from agents import Agent
 def chooseAction(board):
     chosen = False
     while not chosen:
-        x = random.randint(0,4)
-        y = random.randint(0,4)
+        x = random.randint(1,5)
+        y = random.randint(1,5)
         if board[x][y] == 0:
-            return x, y
+            return [x, y]
 
 # function to find best choice based on current 3x3 state
 # NEEDS TO BE TESTED
-def bestChoice(state, shotLocation, epsilon):
+def bestChoice(state, shotLocation, epsilon, board):
     # Has to return value between 0-7 to update into q-table AND the board index
     # epsilon will be used in here
-    explore = random(0,1)
-    if explore <= epsilon:
-        qA = np.argmax(state)
-    else:
-        qA = random.randint(0,7)
+    explore = random.random()
+    acceptable = False
+    while not acceptable:
+        explore = False
+        if explore > epsilon:
+            explore = True
+            tempState = copy(state)
+            qA = np.argmax(tempState) #this will never be a state already selected
+        else:
+            qA = random.randint(0, 7)
 
-    # Convert q-table indexing to full board indexing
-    convert = [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]]
-    bX = shotLocation[0] + convert[qA][0]
-    bY = shotLocation[1] + convert[qA][1]
-    bA = [bX, bY]
+        # Convert q-table indexing to full board indexing
+        convert = [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]]
+        bX = shotLocation[0] + convert[qA][0]
+        bY = shotLocation[1] + convert[qA][1]
+        bA = [bX, bY]
+
+        if board[bX,bY] == 0:
+            acceptable = True
+        if explore == True and acceptable == False:
+            tempState[qA] = '-inf'
 
     return qA, bA
-
 
 def takeAction(board, boardAction, shipLocations):
     result = 0
@@ -43,15 +52,14 @@ def takeAction(board, boardAction, shipLocations):
             # checking if other ship coordinate has been hit already
             if boardAction == shipLocations[i][0]:
                 shipLocations[i][0] = 'hit'
-
                 # if so, return sunk = 3
                 if shipLocations[i][1] == 'hit':
-                    board[boardAction[0]][boardAction[1]] = 3
+                    board[boardAction[0]][boardAction[1]] = 2
                     return 3
             else:
                 shipLocations[i][1] = 'hit'
                 if shipLocations[i][0] == 'hit':
-                    board[boardAction[0]][boardAction[1]] = 3
+                    board[boardAction[0]][boardAction[1]] = 2
                     return 3
             # if not, return hit = 2
             board[boardAction[0]][boardAction[1]] = 2
@@ -69,8 +77,6 @@ def wasSunk(board):
     pass
 
 def QLearning():
-
-
     # in order: unchecked, miss, hit, sink
     rewardMatrix = [0, -1, 0, 4]
 
@@ -90,39 +96,45 @@ def QLearning():
     # shipCount = 0
     # location = chooseAction(board) # needs to be an x,y
     # hit = False
-    forever = 2
+    w = 15
+    h = 15
+    agent = Agent(w, h)
+    board = agent.enemyBoard  # enemy board
+    forever = 15000
     for i in range(forever):
-        agent = Agent(5, 5)
-        board = agent.enemyBoard  # enemy board
-        ships = [[[0, 1], [0, 2]], [[3, 4], [2, 4]], [[2, 3], [1, 3]]] # agent.ships  # enemy ships
-        print(ships)
+        # print('WE DID IT BITCHES')
+        board = np.zeros((h, w))
+        board = np.pad(board, 1, 'constant', constant_values=(1, 1))
+        ships = [[[1, 2], [1, 3]], [[4, 5], [3, 5]], [[3, 4], [2, 4]]] # agent.ships  # enemy ships
         win = False
         shipCount = 0
-        location = chooseAction(board)  # needs to be an x,y
+        location = [3,5]  # needs to be an x,y
         hit = False
-        print("First location guess:", location)
         while not win:
             if hit:
                 tempState = []
-                for y in range(location[1] - 1,location[0] + 2):
+                for y in range(location[1] - 1,location[1] + 2):
                     for x in range(location[0] - 1, location[0] + 2):
-                        if x != location[0] and y != location[1]:
-                            tempState.append(board[x][y])
+                        if [x,y] != location:
+                            tempState.append(int(copy(board[x][y])))
 
                 S = copy(q[tempState[0]][tempState[1]][tempState[2]][tempState[3]][tempState[4]][tempState[5]][tempState[6]][tempState[7]])
                 # update board to have hit where we just hit
                 # choose Action from this board currQ
-                (bA, qA) = bestChoice(S, location, epsilon)
+                (qA, bA) = bestChoice(S, location, epsilon,board)
                 #qA is the action index to update S (the q table)
                 #ba is the action to compare to the whole board
-
                 # take chosen Action, observe reward and next state
-                result = takeAction(bA, board, ships)
+                result = takeAction(board, bA, ships)
                 reward = rewardMatrix[result]
 
                 # get new state indices for q-table based on action taken
                 temp2State = copy(tempState)
-                temp2State = temp2State[qA]
+                if result == 3:
+                    temp2State[qA] = 2
+                else:
+                    temp2State[qA] = result
+
 
                 newS = q[temp2State[0]][temp2State[1]][temp2State[2]][temp2State[3]][temp2State[4]][temp2State[5]][temp2State[6]][temp2State[7]]
                 # from next state, observe what optimal value can be
@@ -130,51 +142,37 @@ def QLearning():
 
                 # Q update
                 q[tempState[0]][tempState[1]][tempState[2]][tempState[3]][tempState[4]][tempState[5]][tempState[6]][tempState[7]]\
-                    = S[qA] + alpha[reward + gamma*maxnewS - S[qA]]
+                    = S[qA] + alpha*(reward + gamma*maxnewS - S[qA])
 
                 # if miss, 3x3 does not shift
                 if result == 1:
                     S = newS
                 elif result == 2:
                     location = bA
-                else: # sunk the ship
-                    shipCount += 1
+                elif result == 3: # sunk the ship
+                    shipCount = shipCount + 1
                     if shipCount == 3:
                         win = True # terminal state has been reached
-                    hit = False
+                        hit = True
+                    else:
+                        hit = False
+                        location = chooseAction(board)
+            # MISS
             else:
                 # randomly choose an action
-                location = chooseAction(board)
-                print("We missed, here's our new location:",location)
-                # check if action was hit or miss and update board accordingly and hit boolean
                 result = takeAction(board, location, ships)
                 if result == 2:
                     hit = True
+                elif result == 3:
+                    shipCount = shipCount + 1
+                    if shipCount == 3:
+                        win = True  # terminal state has been reached
+                        hit = True
+                else:
+                    location = chooseAction(board)
 
-        return board
+                # check if action was hit or miss and update board accordingly and hit boolean
+    return board
 
 
-    # for i in range(forever):
-    #
-    #     while not won:
-    #         # only run this for hit
-    #         action = random(x,y)
-    #         next_state = [hitbool]
-    #         reward = take_action(action)
-    #         Q(state,action) = Q(state,action) + alpha(reward + 0.9*max(Q(state,action)) - Q(state,action))
-    #
-    #         if reward == 1:
-    #             shipcount += 1
-    #         if shipcount == 3:
-    #             won = True
-    #
-    #         state = next_state
-
-# result = board[bA[0]][bA[1]] # either be a hit or miss
-#             if result == 2:
-#                 # need to check whole board to see if sink
-#                 if wasSunk:
-#                     result = 3
-#                 pass
-
-QLearning()
+print(QLearning())
