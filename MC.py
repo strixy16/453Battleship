@@ -315,27 +315,27 @@ def monteCarlo(agent):
                             print(policy[w*j[0] + j[1]])
                         policy[w*j[0] + j[1]] = [[p/summed for p in q] for q in policy[w*j[0] + j[1]]]             
                         # modifications should be done
-                # convert mini policy to add or subtract
-                # move to chosen action
-                tempX = int(index/3)
-                tempY = index % 3
-                print(str(tempX) + ", " + str(tempY))
-                # [x,y] is at [1,1]
-                if tempX < 1: # 1 row up
-                    base = base - w
-                elif tempX > 1:
-                    base = base + w
-                if tempY > 1:
-                    base = base + 1
-                elif tempY < 1:
-                    base = base - 1
-                action = base # now in board reference
-                print("States (target):")
-                print(possibleStates)
-                print(action)
-                print("Policy")
-                print(policy[action])
-                possibleStates.remove(action)
+                    # convert mini policy to add or subtract
+                    # move to chosen action
+                    tempX = int(index/3)
+                    tempY = index % 3
+                    print(str(tempX) + ", " + str(tempY))
+                    # [x,y] is at [1,1]
+                    if tempX < 1: # 1 row up
+                        base = base - w
+                    elif tempX > 1:
+                        base = base + w
+                    if tempY > 1:
+                        base = base + 1
+                    elif tempY < 1:
+                        base = base - 1
+                    action = base # now in board reference
+                    print("States (target):")
+                    print(possibleStates)
+                    print(action)
+                    print("Policy")
+                    print(policy[action])
+                    possibleStates.remove(action)
                 ################
                 # deleted code
                 ################
