@@ -4,26 +4,23 @@ import numpy as np
 from agents import Agent
 import copy
 
+
 q = np.zeros(shape=(3,3,3,3,3,3,3,3,8))
 records = [] # records all states and actions, will have a bunch of 1x9 arrays
+#shipsSunk = 0
 
-def checkWin(ships):
-    if ships == []:
-        return True
-    return False
 
-def checkSunk(ships):
-    if [] in ships:
-        ships.remove([])    
-        return True
-    return False        
+def checkSunk(action, ships, board):
+    for i in range(len(ships)):
+        for j in range(len(ships[i])):
+            if action == ships[i][j]:
+                return (board[ships[i][j-1][0]][ships[i][j-1][1]] == 2)
 
 def checkHit(action, ships, board):
     for i in range(len(ships)):
         for j in range(len(ships[i])):
-            if action in ships[j]:
+            if action == ships[i][j]:
                 board[action[0]][action[1]] = 2
-                ships[j].remove(action)
                 return True
     return False
 
@@ -76,20 +73,54 @@ def eSoft(actions, e):
             probArray[maxIndices[i]] = ((1 - e) + ( len(maxIndices) * e / lenActions)) / len(maxIndices)
 
         return np.random.choice(actionIndices, p=probArray)
-        
+
+
+def convert(actionInd):
+##    newY = int((actionInd + 1) / 3)
+##    if actionInd >= 0 and actionInd < 4:
+##        newX = actionInd % 3
+##    elif actionInd >= 4 and actionInd < 8:
+##        newX = (actionInd + 1) % 3
+##    else:
+##        newX = 2
+##    return newY, newX
+    if actionInd >= 0 and actionInd < 3:
+        newY = 0
+    elif actionInd >= 3 and actionInd <= 6:
+        newY = 1
+    elif actionInd > 6:
+        newY = 2
+    else:
+        print('u dont fuked up')
+    if actionInd % 3 == 0:
+        newX = 0
+    elif actionInd % 3 == 1:
+        newX = 1
+    elif actionInd % 3 == 2:
+        newX = 2
+    return newY, newX
+
+def totalSunk(ships, board):
+    count = 0
+    shipsSunk = 0
+    for i in range(len(ships)):
+        count = 0
+        for j in range(len(ships[i])):
+            if board[ships[i][j][0]][ships[i][j][1]] == 2:
+                count += 1
+        if count == len(ships[i]):
+            shipsSunk += 1
+    return shipsSunk
+            
 def monteCarlo(action, ships, board, e, w, h, gamma):
+    print(board)
+    print()
+    #print(shipsSunk)
     global records, q
-    if checkSunk(ships):
-        # update q table
-        g = 10
-        for i in records:
-            print(i)
-            q[i[0]][i[1]][i[2]][i[3]][i[4]][i[5]][i[6]][i[7]][i[8]] = g
-            g = gamma*g -1
-        records = [] # reset 
-        if checkWin(ships):
-            return True, board
-        return False, board
+    if totalSunk(ships, board)==3:
+        return True
+    elif checkSunk(action, ships, board):
+        return False
     
     state = getState(action, board, w, h)
     # use e soft to get action
@@ -97,31 +128,28 @@ def monteCarlo(action, ships, board, e, w, h, gamma):
     # should be list of 8 actions
     myActions = getActions(state)
     actionInd = eSoft(myActions,e)
+    if actionInd >= 4: # skip index 4 - is self
+        actionInd += 1
+    print(actionInd)
     records.append(state.append(actionInd))
-    myY = int(actionInd/3)
-    myX = actionInd%3
-    oldAction = [0,0]
-    oldAction[0] = action[0]
-    oldAction[1] = action[1]
-    if myX == 0:
-        action[1] += 1
-    elif myX == 1:
-        action[1] += 0
-    elif myX == 2:
-        action[1] -= 1 
-    if myY == 0:
-        action[0] += 1*w
-    elif myY == 1:
-        action[0] += 0*w
-    elif myY == 2:
-        action[0] -= 1*w
-    
-    # have new action
-    if checkHit(action, ships, board):
-        return monteCarlo(action, ships, board, e, w, h, gamma)
+    newY, newX = convert(actionInd)
+    newY -= 1
+    newX -= 1
+    if (newY + action[0]) >= 0 and (newY + action[0]) < w:
+        newY += action[0]
     else:
-        board[myY][myX] = 1
-        return monteCarlo(oldAction, ships, board, e, w, h, gamma)
+        newY = action[0]
+        
+    if (newX + action[1]) >= 0 and (newX + action[1]) < h:
+        newX += action[1]
+    else:
+        newX = action[1]
+    # have new action
+    if checkHit([newY, newX], ships, board):
+        return monteCarlo([newY,newX], ships, board, e, w, h, gamma)
+    else:
+        board[newY][newX] = 1
+        return monteCarlo([action[0],action[1]], ships, board, e, w, h, gamma)
         
 def play(forever,w,h):
     global records
@@ -135,7 +163,6 @@ def play(forever,w,h):
         agent = Agent(w,h)
         board = agent.enemyBoard
         ships = agent.ships
-
         # keep track of which ships were hit
         #boolShips = np.copy(ships)
         #numShips = len(boolShips) # should be 3
@@ -158,11 +185,10 @@ def play(forever,w,h):
             state = getState([x,y], board, w, h)
             if hit:
                 # will return ~3 times, last time win should be true
-                win, board = monteCarlo([y,x], ships, board, e, w, h, gamma)                
+                records = [] # reset
+                win = monteCarlo([y,x], ships, board, e, w, h, gamma)                
             else:
-                board[y][x] = 1    
-        if i == forever - 1:
-            return board
+                board[y][x] = 1 
             
              
 
@@ -170,8 +196,7 @@ def main():
     w = 5
     h = 5
     forever = 1000
-    board = play(forever, w, h)
-    for i in board:
-        print(i)
+    play(forever, w, h)
+    
 
 main()
