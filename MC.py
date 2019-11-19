@@ -273,9 +273,23 @@ def monteCarlo(agent):
                         break
                     index += 1
                 print("Index: " + str(index))
-                # convert action to board action
-                base = w*x + y
+                # convert action to board action, need to add index
+                #base = w*x + y # this is the board. we chose action index
+                # this was such a dumb way to do it
+                if index < 4:
+                    base = action - 7 + index
+                elif index == 4:
+                    base = action - 1
+                elif index == 6:
+                    base = action + 1
+                elif index > 6:
+                    base = action + 4 + index
+                else: # index = 5, shouldn't happen
+                    print("u may as well start over")
                 print("Base: " + str(base))
+                # need to reassign x and y
+                x = int(base/3)
+                y = base%3
                 neighbours = [[x-1, y-1],[x-1,y],[x-1, y+1],
                               [x,y-1],[x, y+1],[x+1, y-1],[x+1, y],[x+1, y+1]]
                 #newX = x
@@ -369,6 +383,10 @@ def monteCarlo(agent):
                     x = int(action/w)
                     y = action%h
                     start = t
+                else:
+                    enemyBoard[x][y] = 1
+
+                # readjust for missing middle    
                 if index >= 6:
                     index -= 1
                 tracker.append([[b[0]],[b[1]],[b[2]],[b[3]],[b[4]],[b[5]],[b[6]],[b[7]],[b[index]]])
