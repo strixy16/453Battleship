@@ -7,6 +7,8 @@ import statistics
 
 q = np.zeros(shape=(3,3,3,3,3,3,3,3,8))
 returns = np.zeros(shape=(3,3,3,3,3,3,3,3,8,1)) # stores rewards for each action/state
+returnsBool = np.zeros(shape=(3,3,3,3,3,3,3,3,8))
+# each action has a bool value that says if its been visited already
 returns = returns.tolist()
 records = [] # records all states and actions, will have a bunch of 1x9 arrays
 
@@ -14,22 +16,20 @@ records = [] # records all states and actions, will have a bunch of 1x9 arrays
 
 
 def calculate(gamma):
-    global q, records, returns
+    global q, records, returns, returnsBool
     g = 10 # set reward for sinking to be 10, -1 for everything else
     for i in reversed(records): # includes the 1x8 state and the action
         #print(i)
         act = i[-1] # the action taken
         
-        #print(returns[i[0]][i[1]][i[2]][i[3]][i[4]][i[5]][i[6]][i[7]][act])
-        try:
+        if returnsBool[i[0]][i[1]][i[2]][i[3]][i[4]][i[5]][i[6]][i[7]][act] == 0:
+            # won't visit for rest of game
+            returnsBool[i[0]][i[1]][i[2]][i[3]][i[4]][i[5]][i[6]][i[7]][act] = 1
             returns[i[0]][i[1]][i[2]][i[3]][i[4]][i[5]][i[6]][i[7]][act].append(g)            
             myRewards = returns[i[0]][i[1]][i[2]][i[3]][i[4]][i[5]][i[6]][i[7]][act]
-        except Exception as e:
-            print(e)
-            print(i)
         #print(myRewards)
-        q[i[0]][i[1]][i[2]][i[3]][i[4]][i[5]][i[6]][i[7]][act] = statistics.mean(myRewards)
-        g = gamma*g -1
+            q[i[0]][i[1]][i[2]][i[3]][i[4]][i[5]][i[6]][i[7]][act] = statistics.mean(myRewards)
+            g = gamma*g -1
         # esoft handled elsewhere
     records = [] # clear records
         
@@ -207,12 +207,13 @@ def hitNotSunk(ships, board, w,h, gamma):
     return False, [0,0]
         
 def play(forever,w,h):
-    global records
+    global records, returnsBool
     num = w*h
     gamma = 0.9
-    e = 0.5
+    e = 0.3
     for i in range(forever):
-        
+        # reset the rewards boolean value
+        returnsBool = np.zeros(shape=(3,3,3,3,3,3,3,3,8))        
         records = [] # reset
         # set up game, get ships and board
         agent = Agent(w,h)
@@ -254,8 +255,8 @@ def play(forever,w,h):
     return board        
 
 def main():
-    w = 10
-    h = 10
+    w = 20
+    h = 20
     forever = 1000
     board = play(forever, w, h)
     for i in board:
