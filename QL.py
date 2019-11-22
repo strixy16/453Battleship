@@ -3,14 +3,15 @@ import numpy as np
 import random
 from copy import copy
 from agents import Agent
+from agents import setShips
 
 
 # note: need to pass in board with all the places that have been shot at already by agent
-def chooseAction(board):
+def chooseAction(board, h, w):
     chosen = False
     while not chosen:
-        x = random.randint(1,5)
-        y = random.randint(1,5)
+        x = random.randint(1,h)
+        y = random.randint(1,w)
         if board[x][y] == 0:
             return [x, y]
 
@@ -96,19 +97,23 @@ def QLearning():
     # shipCount = 0
     # location = chooseAction(board) # needs to be an x,y
     # hit = False
-    w = 15
-    h = 15
+    w = 8
+    h = 8
     agent = Agent(w, h)
     board = agent.enemyBoard  # enemy board
-    forever = 15000
+    forever = 50000
     for i in range(forever):
         # print('WE DID IT BITCHES')
         board = np.zeros((h, w))
+        agent.ships = setShips(h, w)
+        ships = agent.ships
+        ships = [[[z+1 for z in y] for y in x] for x in ships]
+        # ships = agent.ships
         board = np.pad(board, 1, 'constant', constant_values=(1, 1))
-        ships = [[[1, 2], [1, 3]], [[4, 5], [3, 5]], [[3, 4], [2, 4]]] # agent.ships  # enemy ships
+        # ships = [[[1, 2], [1, 3]], [[4, 5], [3, 5]], [[3, 4], [2, 4]]] # agent.ships  # enemy ships
         win = False
         shipCount = 0
-        location = [3,5]  # needs to be an x,y
+        location = chooseAction(board, h, w) # needs to be an x,y
         hit = False
         while not win:
             if hit:
@@ -156,7 +161,7 @@ def QLearning():
                         hit = True
                     else:
                         hit = False
-                        location = chooseAction(board)
+                        location = chooseAction(board, h, w)
             # MISS
             else:
                 # randomly choose an action
@@ -169,7 +174,7 @@ def QLearning():
                         win = True  # terminal state has been reached
                         hit = True
                 else:
-                    location = chooseAction(board)
+                    location = chooseAction(board, h, w)
 
                 # check if action was hit or miss and update board accordingly and hit boolean
     return board
