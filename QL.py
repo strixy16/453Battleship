@@ -4,7 +4,7 @@ import random
 from copy import copy
 from agents import Agent
 from agents import setShips
-
+import matplotlib.pyplot as plt
 
 # note: need to pass in board with all the places that have been shot at already by agent
 def chooseAction(board, h, w):
@@ -77,7 +77,7 @@ def takeAction(board, boardAction, shipLocations):
 def wasSunk(board):
     pass
 
-def QLearning():
+def QLearning(forever):
     # in order: unchecked, miss, hit, sink
     rewardMatrix = [0, -1, 0, 4]
 
@@ -101,7 +101,8 @@ def QLearning():
     h = 8
     agent = Agent(w, h)
     board = agent.enemyBoard  # enemy board
-    forever = 50000
+    # forever = 50000
+    time_steps = []
     for i in range(forever):
         # print('WE DID IT BITCHES')
         board = np.zeros((h, w))
@@ -115,8 +116,11 @@ def QLearning():
         shipCount = 0
         location = chooseAction(board, h, w) # needs to be an x,y
         hit = False
+        time_steps_episode = []
+        temp_time_steps = 1
         while not win:
             if hit:
+                temp_time_steps += 1
                 tempState = []
                 for y in range(location[1] - 1,location[1] + 2):
                     for x in range(location[0] - 1, location[0] + 2):
@@ -146,21 +150,28 @@ def QLearning():
                 maxnewS = max(newS)
 
                 # Q update
-                q[tempState[0]][tempState[1]][tempState[2]][tempState[3]][tempState[4]][tempState[5]][tempState[6]][tempState[7]]\
+                # print('before:', q[tempState[0]][tempState[1]][tempState[2]][tempState[3]][tempState[4]][tempState[5]][tempState[6]][
+                #         tempState[7]])
+                q[tempState[0]][tempState[1]][tempState[2]][tempState[3]][tempState[4]][tempState[5]][tempState[6]][tempState[7]][qA]\
                     = S[qA] + alpha*(reward + gamma*maxnewS - S[qA])
+                # print('after', q[tempState[0]][tempState[1]][tempState[2]][tempState[3]][tempState[4]][tempState[5]][tempState[6]][tempState[7]])
+
 
                 # if miss, 3x3 does not shift
-                if result == 1:
+                if result == 1: #miss
                     S = newS
-                elif result == 2:
+                elif result == 2: #hit but not a sink
                     location = bA
                 elif result == 3: # sunk the ship
                     shipCount = shipCount + 1
+                    time_steps_episode.append(temp_time_steps)  # append the last number of trys it took to sink the ship
                     if shipCount == 3:
                         win = True # terminal state has been reached
+                        time_steps.append(np.mean(time_steps_episode)) # the game episode is over so average for all ships
                         hit = True
                     else:
                         hit = False
+                        temp_time_steps = 1 # reset temp time steps for next ship
                         location = chooseAction(board, h, w)
             # MISS
             else:
@@ -171,13 +182,27 @@ def QLearning():
                 elif result == 3:
                     shipCount = shipCount + 1
                     if shipCount == 3:
+                        time_steps_episode.append(1) # it took 1 attempt to sink the ship
                         win = True  # terminal state has been reached
+                        time_steps.append(np.mean(time_steps_episode))# the game episode is over so average for all ships
                         hit = True
                 else:
                     location = chooseAction(board, h, w)
 
                 # check if action was hit or miss and update board accordingly and hit boolean
-    return board
+    return board, time_steps, q[1][0][1][1][0][1][0][0]
 
 
-print(QLearning())
+forever = 5000
+board, time_steps,q_table = QLearning(forever)
+print(board)
+print(q_table)
+x = [t for t in range(1, forever + 1)]
+
+plt.figure(1)
+plt.plot(x, time_steps)
+plt.xlabel('Number of Episodes')
+plt.ylabel('Time Steps')
+plt.title('Convergence of Q-Learning')
+plt.show()
+

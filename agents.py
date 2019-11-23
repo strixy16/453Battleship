@@ -9,7 +9,7 @@ class Agent:
 		self.enemyBoard = np.zeros((h,w)) #what we know about the enemy board, everything is unchecked to start
 
 def setShips(h, w):
-	shipLen = [2,2,3] #length of every ship
+	shipLen = [2,2,2] #length of every ship
 	squares = {i for i in range(h * w)} #we make a set of every tile, and when we place a ship we remove the positions from the set.
 	ships = [] #positions of the ships, shape=(3,2)
 
