@@ -116,11 +116,10 @@ def QLearning(forever):
         shipCount = 0
         location = chooseAction(board, h, w) # needs to be an x,y
         hit = False
-        time_steps_episode = []
-        temp_time_steps = 1
+        time_steps_episode = 1
         while not win:
             if hit:
-                temp_time_steps += 1
+                time_steps_episode += 1
                 tempState = []
                 for y in range(location[1] - 1,location[1] + 2):
                     for x in range(location[0] - 1, location[0] + 2):
@@ -164,10 +163,9 @@ def QLearning(forever):
                     location = bA
                 elif result == 3: # sunk the ship
                     shipCount = shipCount + 1
-                    time_steps_episode.append(temp_time_steps)  # append the last number of trys it took to sink the ship
                     if shipCount == 3:
                         win = True # terminal state has been reached
-                        time_steps.append(np.mean(time_steps_episode)) # the game episode is over so average for all ships
+                        time_steps.append(time_steps_episode/3) # the game episode is over so average for all ships
                         hit = True
                     else:
                         hit = False
@@ -177,14 +175,15 @@ def QLearning(forever):
             else:
                 # randomly choose an action
                 result = takeAction(board, location, ships)
-                if result == 2:
+                if result == 2: #hit
+                    time_steps_episode += 1
                     hit = True
-                elif result == 3:
+                elif result == 3: #sunk
                     shipCount = shipCount + 1
+                    time_steps_episode += 1  # it took 1 attempt to sink the ship
                     if shipCount == 3:
-                        time_steps_episode.append(1) # it took 1 attempt to sink the ship
                         win = True  # terminal state has been reached
-                        time_steps.append(np.mean(time_steps_episode))# the game episode is over so average for all ships
+                        time_steps.append(time_steps_episode/3)# the game episode is over so average for all ships
                         hit = True
                 else:
                     location = chooseAction(board, h, w)
