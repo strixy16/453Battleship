@@ -13,23 +13,26 @@ def chooseAction(board, h, w):
         x = random.randint(1,h)
         y = random.randint(1,w)
         if board[x][y] == 0:
-            return [x, y]
+            return [x, y] # breaks the loop
 
 # function to find best choice based on current 3x3 state
 # NEEDS TO BE TESTED
 def bestChoice(state, shotLocation, epsilon, board):
     # Has to return value between 0-7 to update into q-table AND the board index
     # epsilon will be used in here
-    explore = random.random()
+    qA = 0 # will be set to action we select
+    exp = random.random() #determine if you will exploite
     acceptable = False
+    exploite = False
+    if exp > epsilon:
+        exploite = True
+    tempState = copy(state)
+
     while not acceptable:
-        explore = False
-        if explore > epsilon:
-            explore = True
-            tempState = copy(state)
-            qA = np.argmax(tempState) #this will never be a state already selected
+        if exploite:
+            qA = np.argmax(tempState)
         else:
-            qA = random.randint(0, 7)
+            qA = random.randint(0, 7) #radnomly select a state
 
         # Convert q-table indexing to full board indexing
         convert = [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]]
@@ -37,10 +40,12 @@ def bestChoice(state, shotLocation, epsilon, board):
         bY = shotLocation[1] + convert[qA][1]
         bA = [bX, bY]
 
-        if board[bX,bY] == 0:
+        if board[bX][bY] == 0:
             acceptable = True
-        if explore == True and acceptable == False:
-            tempState[qA] = '-inf'
+            # print('it was true!')
+            # break
+        if exploite == True and acceptable == False:
+            tempState[qA] = '-inf' #take the next best action (this won't happen?)
 
     return qA, bA
 
@@ -192,7 +197,7 @@ def QLearning(forever):
     return board, time_steps, q[1][0][1][1][0][1][0][0]
 
 
-forever = 50000
+forever = 5000
 board, time_steps,q_table = QLearning(forever)
 print(board)
 print(q_table)
