@@ -82,7 +82,7 @@ def QLearning(forever):
     rewardMatrix = [0, -1, 0, 4]
 
     alpha = 0.1
-    epsilon = 0.1
+    epsilon = 0.05
     gamma = 0.9
 
     # Q-table initialization
@@ -97,8 +97,8 @@ def QLearning(forever):
     # shipCount = 0
     # location = chooseAction(board) # needs to be an x,y
     # hit = False
-    w = 8
-    h = 8
+    w = 15
+    h = 15
     agent = Agent(w, h)
     board = agent.enemyBoard  # enemy board
     # forever = 50000
@@ -116,7 +116,7 @@ def QLearning(forever):
         shipCount = 0
         location = chooseAction(board, h, w) # needs to be an x,y
         hit = False
-        time_steps_episode = 1
+        time_steps_episode = 0
         while not win:
             if hit:
                 time_steps_episode += 1
@@ -192,7 +192,7 @@ def QLearning(forever):
     return board, time_steps, q[1][0][1][1][0][1][0][0]
 
 
-forever = 5000
+forever = 50000
 board, time_steps,q_table = QLearning(forever)
 print(board)
 print(q_table)
