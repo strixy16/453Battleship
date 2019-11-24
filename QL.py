@@ -197,13 +197,15 @@ def QLearning(forever):
     return board, time_steps, q[1][0][1][1][0][1][0][0]
 
 
-forever = 5000
+forever = 50
 board, time_steps,q_table = QLearning(forever)
 print(board)
 print(q_table)
 x = [t for t in range(1, forever + 1)]
 
 plt.figure(1)
+print(x)
+print(time_steps)
 plt.plot(x, time_steps)
 plt.xlabel('Number of Episodes')
 plt.ylabel('Time Steps')

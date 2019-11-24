@@ -3,7 +3,7 @@ import random
 import numpy as np
 from agents import Agent
 #import copy
-#import matplotlib
+import matplotlib.pyplot as plt
 import statistics
 
 q = np.zeros(shape=(3,3,3,3,3,3,3,3,8))
@@ -12,7 +12,7 @@ returnsBool = np.zeros(shape=(3,3,3,3,3,3,3,3,8))
 # each action has a bool value that says if its been visited already
 returns = returns.tolist()
 records = [] # records all states and actions, will have a bunch of 1x9 arrays
-
+steps = 0 # for graphing purposes
 #shipsSunk = 0
 
 
@@ -37,7 +37,7 @@ def calculate(gamma):
         
     
         
-def checkSunk(action, ships, board, gamma):
+def checkSunk(action, ships, board):
     for i in range(len(ships)):
         for j in range(len(ships[i])):
             if action == ships[i][j]:
@@ -156,13 +156,15 @@ def totalSunk(ships, board):
     return shipsSunk
             
 def monteCarlo(action, ships, board, e, w, h, gamma):
+    global steps
+    steps += 1
 ##    print(board)
 ##    print()
     #print(shipsSunk)
     global records, q
     if totalSunk(ships, board)== len(ships):
         return True
-    elif checkSunk(action, ships, board, gamma):
+    elif checkSunk(action, ships, board):
         calculate(gamma)
         return False
 ##    print("action:")
@@ -221,7 +223,7 @@ def hitNotSunk(ships, board, w,h, gamma):
         for j in range(w):
             if board[i][j] == 2:
                 # check sunk
-                if not checkSunk([i,j], ships, board, gamma):
+                if not checkSunk([i,j], ships, board):
                     allHit.append([i,j])
                     #return True, [i,j]
     # no hit but unsunk ships
@@ -233,10 +235,11 @@ def hitNotSunk(ships, board, w,h, gamma):
     return False, [0,0]
         
 def play(forever,w,h):
-    global records, returnsBool
+    global records, returnsBool, steps
     num = w*h
     gamma = 0.9
     e = 0.3
+    pts = [0 for i in range(forever)]
     for i in range(forever):
         # reset the rewards boolean value
         returnsBool = np.zeros(shape=(3,3,3,3,3,3,3,3,8))        
@@ -278,14 +281,29 @@ def play(forever,w,h):
                     win = monteCarlo([y,x], ships, board, e, w, h, gamma)                
                 else:
                     board[y][x] = 1 
-            
+        
+        pts[i] = steps
+        steps = 0
+    # plot pts and i
+    #print(pts)
+    episodes = np.array([i for i in range(1, forever+1)])
+    pts = np.array(pts)
+    #print(episodes)
+    plt.figure(1)
+##    plt.plot(episodes, pts)
+    plt.scatter(episodes, pts, alpha = 0.2, s = 10)
+    
+    plt.xlabel('Number of Episodes')
+    plt.ylabel('Time Steps')
+    plt.title('Convergence of Monte Carlo')
+    plt.show()
     return board        
 
 def main():
-    w = 10
-    h = 10
+    w = 20
+    h = 20
     global q
-    forever = 5000
+    forever = 10000
     
     for i in range(1):
         board = play(forever, w, h)
