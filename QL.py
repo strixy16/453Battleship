@@ -23,13 +23,13 @@ def bestChoice(state, shotLocation, epsilon, board):
     qA = 0 # will be set to action we select
     exp = random.random() #determine if you will exploite
     acceptable = False
-    exploite = False
+    exploit = False
     if exp > epsilon:
-        exploite = True
+        exploit = True
     tempState = copy(state)
 
     while not acceptable:
-        if exploite:
+        if exploit:
             qA = np.argmax(tempState)
         else:
             qA = random.randint(0, 7) #radnomly select a state
@@ -44,7 +44,7 @@ def bestChoice(state, shotLocation, epsilon, board):
             acceptable = True
             # print('it was true!')
             # break
-        if exploite == True and acceptable == False:
+        if exploit == True and acceptable == False:
             tempState[qA] = '-inf' #take the next best action (this won't happen?)
 
     return qA, bA
