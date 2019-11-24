@@ -82,7 +82,7 @@ def takeAction(board, boardAction, shipLocations):
 def wasSunk(board):
     pass
 
-def QLearning(forever):
+def QLearning(forever, width, height):
     # in order: unchecked, miss, hit, sink
     rewardMatrix = [0, -1, 0, 4]
 
@@ -102,8 +102,8 @@ def QLearning(forever):
     # shipCount = 0
     # location = chooseAction(board) # needs to be an x,y
     # hit = False
-    w = 15
-    h = 15
+    w = width
+    h = height
     agent = Agent(w, h)
     board = agent.enemyBoard  # enemy board
     # forever = 50000
@@ -198,7 +198,9 @@ def QLearning(forever):
 
 
 forever = 5000
-board, time_steps,q_table = QLearning(forever)
+width = 15
+height = 15
+board, time_steps,q_table = QLearning(forever, width, height)
 print(board)
 print(q_table)
 x = [t for t in range(1, forever + 1)]
