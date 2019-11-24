@@ -96,25 +96,29 @@ def getActions(state):
     return q[state[0]][state[1]][state[2]][state[3]][state[4]][state[5]][state[6]][state[7]]
 
 #returns the index of the action chosen by e-soft
-def eSoft(actions, e):
+def eSoft(actions, e, state):
         maxIndices = []
+        validActionIndices = []
+        for i in range(len(state)):
+            if state[i] == 0:
+                validActionIndices.append(i)
+        
         maxVal = float('-inf')
-        lenActions = len(actions)
-        actionIndices = [ i for i in range(lenActions) ]
+        lenActions = len(validActionIndices)
         for i in range(lenActions):
-            if actions[i] > maxVal:
+            if actions[validActionIndices[i]] > maxVal:
                 maxIndices.clear()
-                maxIndices.append(i)
+                maxIndices.append(validActionIndices[i])
                 maxVal = actions[i]
-            elif actions[i] == maxVal:
-                maxIndices.append(i)
+            elif actions[validActionIndices[i]] == maxVal:
+                maxIndices.append(validActionIndices[i])
                 
         probArray = [ (e/lenActions) for _ in range(lenActions) ]
 
         for i in range(len(maxIndices)):
             probArray[maxIndices[i]] = ((1 - e) + ( len(maxIndices) * e / lenActions)) / len(maxIndices)
 
-        return np.random.choice(actionIndices, p=probArray)
+        return np.random.choice(validActionIndices, p=probArray)
 
 
 def convert(actionInd):
@@ -177,7 +181,7 @@ def monteCarlo(action, ships, board, e, w, h, gamma):
     # we have the state (action)
     # should be list of 8 actions
     myActions = getActions(state)
-    actionInd = eSoft(myActions,e)
+    actionInd = eSoft(myActions, e, state)
         
     state.append(actionInd)
     records.append(state)
@@ -239,8 +243,12 @@ def play(forever,w,h):
     num = w*h
     gamma = 0.9
     e = 0.3
-    pts = [0 for i in range(forever)]
+    myCount = 0
+    countTo10 = 0
+    pts = [0 for i in range(int(forever/10))]
+    counter = [0 for i in range(10)]
     for i in range(forever):
+        
         # reset the rewards boolean value
         returnsBool = np.zeros(shape=(3,3,3,3,3,3,3,3,8))        
         records = [] # reset
@@ -263,36 +271,47 @@ def play(forever,w,h):
         while not win:
             # check to make sure there is nothing hit that wasn't sunk
             # returns bool, if true take action, action is random among all hit
-            notSunkYet, action = hitNotSunk(ships, board, w,h, gamma)
-            if notSunkYet:
-                win = monteCarlo([action[0], action[1]], ships, board, e, w, h ,gamma)
-            else:
+##            notSunkYet, action = hitNotSunk(ships, board, w,h, gamma)
+##            if notSunkYet:
+##                win = monteCarlo([action[0], action[1]], ships, board, e, w, h ,gamma)
+##            else:
                 #pick random action
-                action = random.choice(tuple(actionSet))
-                actionSet.remove(action)
-                y = int(action/w)
-                x = action%h
-                hit = checkHit([y,x], ships, board)
+            action = random.choice(tuple(actionSet))
+            actionSet.remove(action)
+            y = int(action/w)
+            x = action%h
+            hit = checkHit([y,x], ships, board)
 ##                print("??")
-                state = getState([y,x], board, w, h)
-                if hit:
-                    # will return ~3 times, last time win should be true
-                    records = [] # reset
-                    win = monteCarlo([y,x], ships, board, e, w, h, gamma)                
-                else:
-                    board[y][x] = 1 
+            state = getState([y,x], board, w, h)
+            if hit:
+                # will return ~3 times, last time win should be true
+                records = [] # reset
+                win = monteCarlo([y,x], ships, board, e, w, h, gamma)                
+            else:
+                board[y][x] = 1 
         
-        pts[i] = steps
+        counter[countTo10] = steps
+        countTo10 += 1
         steps = 0
+        if countTo10 == 10:
+            countTo10 = 0
+            pts[myCount] = statistics.mean(counter)
+            myCount += 1
     # plot pts and i
     #print(pts)
-    episodes = np.array([i for i in range(1, forever+1)])
+    episodes = np.array([i for i in range(1, forever+1, 10)])
     pts = np.array(pts)
     #print(episodes)
     plt.figure(1)
-##    plt.plot(episodes, pts)
-    plt.scatter(episodes, pts, alpha = 0.2, s = 10)
+    plt.plot(episodes, pts)
     
+    plt.xlabel('Number of Episodes')
+    plt.ylabel('Time Steps')
+    plt.title('Convergence of Monte Carlo')
+    plt.show()
+
+    plt.figure(1)
+    plt.scatter(episodes, pts, alpha = 0.2, s = 10)
     plt.xlabel('Number of Episodes')
     plt.ylabel('Time Steps')
     plt.title('Convergence of Monte Carlo')
@@ -303,7 +322,7 @@ def main():
     w = 20
     h = 20
     global q
-    forever = 5000
+    forever = 500
     
     for i in range(1):
         board = play(forever, w, h)
