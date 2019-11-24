@@ -23,13 +23,13 @@ def bestChoice(state, shotLocation, epsilon, board):
     qA = 0 # will be set to action we select
     exp = random.random() #determine if you will exploite
     acceptable = False
-    exploite = False
+    exploit = False
     if exp > epsilon:
-        exploite = True
+        exploit = True
     tempState = copy(state)
 
     while not acceptable:
-        if exploite:
+        if exploit:
             qA = np.argmax(tempState)
         else:
             qA = random.randint(0, 7) #radnomly select a state
@@ -44,7 +44,7 @@ def bestChoice(state, shotLocation, epsilon, board):
             acceptable = True
             # print('it was true!')
             # break
-        if exploite == True and acceptable == False:
+        if exploit == True and acceptable == False:
             tempState[qA] = '-inf' #take the next best action (this won't happen?)
 
     return qA, bA
@@ -82,7 +82,7 @@ def takeAction(board, boardAction, shipLocations):
 def wasSunk(board):
     pass
 
-def QLearning(forever):
+def QLearning(forever, width, height):
     # in order: unchecked, miss, hit, sink
     rewardMatrix = [0, -1, 0, 4]
 
@@ -102,8 +102,8 @@ def QLearning(forever):
     # shipCount = 0
     # location = chooseAction(board) # needs to be an x,y
     # hit = False
-    w = 15
-    h = 15
+    w = width
+    h = height
     agent = Agent(w, h)
     board = agent.enemyBoard  # enemy board
     # forever = 50000
@@ -197,8 +197,15 @@ def QLearning(forever):
     return board, time_steps, q[1][0][1][1][0][1][0][0]
 
 
+<<<<<<< HEAD
 forever = 50
 board, time_steps,q_table = QLearning(forever)
+=======
+forever = 5000
+width = 15
+height = 15
+board, time_steps,q_table = QLearning(forever, width, height)
+>>>>>>> 4f0ed822181ea713888c09ed9c4f57daea4e190f
 print(board)
 print(q_table)
 x = [t for t in range(1, forever + 1)]
