@@ -198,13 +198,19 @@ def QLearning(forever, width, height):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 forever = 50
 board, time_steps,q_table = QLearning(forever)
 =======
+=======
+>>>>>>> 4f0ed822181ea713888c09ed9c4f57daea4e190f
 forever = 5000
 width = 15
 height = 15
 board, time_steps,q_table = QLearning(forever, width, height)
+<<<<<<< HEAD
+>>>>>>> 4f0ed822181ea713888c09ed9c4f57daea4e190f
+=======
 >>>>>>> 4f0ed822181ea713888c09ed9c4f57daea4e190f
 print(board)
 print(q_table)
