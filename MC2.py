@@ -18,7 +18,7 @@ steps = 0 # for graphing purposes
 
 def calculate(gamma):
     global q, records, returns, returnsBool
-    g = 0 # set reward for sinking to be 0, -1 for everything else
+    g = 5 # set reward for sinking to be 0, -1 for everything else
     for i in reversed(records): # includes the 1x8 state and the action
         #print(i)
         act = i[-1] # the action taken
@@ -303,7 +303,7 @@ def main():
     w = 20
     h = 20
     global q
-    forever = 10000
+    forever = 5000
     
     for i in range(1):
         board = play(forever, w, h)
