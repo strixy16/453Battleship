@@ -197,31 +197,23 @@ def QLearning(forever, width, height):
     return board, time_steps, q[1][0][1][1][0][1][0][0]
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-forever = 50
-board, time_steps,q_table = QLearning(forever)
-=======
-=======
->>>>>>> 4f0ed822181ea713888c09ed9c4f57daea4e190f
-forever = 5000
-width = 15
-height = 15
-board, time_steps,q_table = QLearning(forever, width, height)
-<<<<<<< HEAD
->>>>>>> 4f0ed822181ea713888c09ed9c4f57daea4e190f
-=======
->>>>>>> 4f0ed822181ea713888c09ed9c4f57daea4e190f
-print(board)
-print(q_table)
-x = [t for t in range(1, forever + 1)]
+def main():
+	forever = 5000
+	width = 15
+	height = 15
+	board, time_steps,q_table = QLearning(forever, width, height)
+	x = [t for t in range(1, forever + 1)]
+	
+	plt.figure(1)
+	plt.plot(x, time_steps)
+	plt.xlabel('Number of Episodes')
+	plt.ylabel('Time Steps')
+	plt.title('Convergence of Q-Learning')
+	plt.show()
+	
+	realBoard = []
+	for i in range(1,len(board)-1):
+		realBoard.append(board[i][1:16])
 
-plt.figure(1)
-print(x)
-print(time_steps)
-plt.plot(x, time_steps)
-plt.xlabel('Number of Episodes')
-plt.ylabel('Time Steps')
-plt.title('Convergence of Q-Learning')
-plt.show()
-
+	print(realBoard)
+	return realBoard
