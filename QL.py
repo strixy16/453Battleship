@@ -13,20 +13,21 @@ import matplotlib.pyplot as plt
 def chooseAction(board, h, w):
     chosen = False
     while not chosen:
+        # Generating random value for x and y
         x = random.randint(1, h)
         y = random.randint(1, w)
         if board[x][y] == 0:
-            return [x, y]  # breaks the loop
+            return [x, y]
 
 
 # Function to select best action in the current 3x3 state
 # Input: State from q-table, location of last fire in [x,y], epsilon for exploit/explore choice, full board
 # Output: qA = action index in the 3x3 state, bA = action indexed onto board in [x,y]
 def bestChoice(state, shotLocation, epsilon, board):
-    qA = 0  # will be set to action we select
-    exp = random.random()  # determine if you will exploit
-    acceptable = False  # boolean for if space has already been selected
-    exploit = False  # boolean for exploit or explore to be determined by comparison to exp
+    qA = 0  # Will be set to action we select
+    exp = random.random()  # Determine if you will exploit
+    acceptable = False  # Boolean for if space has already been selected
+    exploit = False  # Boolean for exploit or explore to be determined by comparison to exp
     # Epsilon-greedy method to determine if agent will explore or exploit
     if exp > epsilon:
         exploit = True
@@ -54,36 +55,45 @@ def bestChoice(state, shotLocation, epsilon, board):
 
     return qA, bA
 
-
+# Function to update board and determine result of an action
+# Input: Whole board, space to be fired at, locations of enemy ships
+# Output: result, where 1 = miss, 2 = hit, 3 = sink
 def takeAction(board, boardAction, shipLocations):
     result = 0
+    # Get total number of ships
     shipCount = len(shipLocations)
+    # Iterate through each ship to see if boardAction hits any of them
     for i in range(shipCount):
         # Checking if hit location is one of the ship coordinates
         if boardAction in shipLocations[i]:
-            # checking if other ship coordinate has been hit already
+            # Checking first ship coordinate
             if boardAction == shipLocations[i][0]:
+                # Update value for that ship location as 'hit'
                 shipLocations[i][0] = 'hit'
-                # if so, return sunk = 3
+                # Checking if other ship coordinate has been hit already
                 if shipLocations[i][1] == 'hit':
+                    # If so, ship has been sunk, return 3
                     board[boardAction[0]][boardAction[1]] = 2
                     return 3
+            # Hit is on other ship coordinate
             else:
                 shipLocations[i][1] = 'hit'
+                # Checking if other ship coordinate has been hit already
                 if shipLocations[i][0] == 'hit':
+                    # If so, ship has been sunk, return 3
                     board[boardAction[0]][boardAction[1]] = 2
                     return 3
-            # if not, return hit = 2
+            # If the other coordinate in the ship hasn't been hit, return 2
             board[boardAction[0]][boardAction[1]] = 2
             return 2
-
+    # If boardAction is not on one of the ships, return miss
     board[boardAction[0]][boardAction[1]] = 1
     return 1
 
 
 def QLearning(forever, width, height):
     # in order: unchecked, miss, hit, sink
-    rewardMatrix = [0, -1, 0, 3]
+    rewardMatrix = [0, -1, 0, 1]
 
     alpha = 0.1
     epsilon = 0.05
@@ -96,11 +106,12 @@ def QLearning(forever, width, height):
     h = height
     agent = Agent(w, h)
 
-    # Do we need the next line?
-    # board = agent.enemyBoard  # enemy board
-
     time_steps = []
+    episode_count = 0
+    temp_time_steps = []
+
     for i in range(forever):
+        episode_count += 1
         board = np.zeros((h, w))
         agent.ships = setShips(h, w)
         ships = agent.ships
@@ -158,26 +169,34 @@ def QLearning(forever, width, height):
                     shipCount = shipCount + 1
                     if shipCount == 3:
                         win = True  # terminal state has been reached
-                        time_steps.append(time_steps_episode / 3)  # the game episode is over so average for all ships
+                        temp_time_steps.append(time_steps_episode / 3)  # the game episode is over so average for all ships
                         hit = True
+                        if episode_count == 10:
+                            time_steps.append(np.mean(temp_time_steps))
+                            temp_time_steps = []
+                            episode_count = 0
+
+
                     else:
                         hit = False
-                        temp_time_steps = 1  # reset temp time steps for next ship
                         location = chooseAction(board, h, w)
             # MISS
             else:
                 # randomly choose an action
                 result = takeAction(board, location, ships)
                 if result == 2:  # hit
-                    time_steps_episode += 1
                     hit = True
                 elif result == 3:  # sunk
                     shipCount = shipCount + 1
                     time_steps_episode += 1  # it took 1 attempt to sink the ship
                     if shipCount == 3:
                         win = True  # terminal state has been reached
-                        time_steps.append(time_steps_episode / 3)  # the game episode is over so average for all ships
+                        temp_time_steps.append(time_steps_episode / 3)  # the game episode is over so average for all ships
                         hit = True
+                        if episode_count == 10:
+                            time_steps.append(np.mean(temp_time_steps))
+                            temp_time_steps = []
+                            episode_count = 0
                 else:
                     location = chooseAction(board, h, w)
 
@@ -187,10 +206,12 @@ def QLearning(forever, width, height):
 
 def main():
     forever = 5000
-    width = 15
-    height = 15
-    board, time_steps, q_table = QLearning(forever, width, height)
-    x = [t for t in range(1, forever + 1)]
+    width = 20
+    height = 20
+    board, time_steps= QLearning(forever, width, height)
+    x = np.array([i for i in range(1, forever+1, 10)])
+    print(np.mean(time_steps))
+    # return np.mean(time_steps)
 
     plt.figure(1)
     plt.plot(x, time_steps)
@@ -205,3 +226,13 @@ def main():
 
     print(realBoard)
     return realBoard
+
+main()
+# mts = []
+# for i in range(5):
+#     print(main())
+#     mts.append(main())
+#
+# x = np.mean(mts)
+# print(x)
+
