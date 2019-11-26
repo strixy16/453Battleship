@@ -81,8 +81,8 @@ def drawBoard(b1, b2, h, w):
 			if b1[i][j] == 1:
 				window.create_oval(xPos, yPos, xPos+rHeight, yPos+rHeight, outline='black')
 			elif b1[i][j] == 2:
-				window.create_line(xPos, yPos, xPos+rHeight, yPos+rHeight, fill='black')
-				window.create_line(xPos+rHeight, yPos, xPos, yPos+rHeight, fill='black')
+				window.create_line(xPos, yPos, xPos+rHeight, yPos+rHeight, fill='red')
+				window.create_line(xPos+rHeight, yPos, xPos, yPos+rHeight, fill='red')
 	
 	
 	for i in range(h):
@@ -100,8 +100,8 @@ def drawBoard(b1, b2, h, w):
 			if b2[i][j] == 1:
 				window.create_oval(xPos, yPos, xPos+rHeight, yPos+rHeight, outline='black')
 			elif b2[i][j] == 2:
-				window.create_line(xPos, yPos, xPos+rHeight, yPos+rHeight, fill='black')
-				window.create_line(xPos+rHeight, yPos, xPos, yPos+rHeight, fill='black')
+				window.create_line(xPos, yPos, xPos+rHeight, yPos+rHeight, fill='red')
+				window.create_line(xPos+rHeight, yPos, xPos, yPos+rHeight, fill='red')
 
 	window.pack()
 
