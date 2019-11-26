@@ -6,7 +6,9 @@ from agents import Agent
 from agents import setShips
 import matplotlib.pyplot as plt
 
-# note: need to pass in board with all the places that have been shot at already by agent
+# Function to randomly choose an space on the board to fire out
+# Input: Board with all previous actions recorded, height and width of board
+# Output: Location on board in [x,y] coordinates
 def chooseAction(board, h, w):
     chosen = False
     while not chosen:
@@ -15,23 +17,26 @@ def chooseAction(board, h, w):
         if board[x][y] == 0:
             return [x, y] # breaks the loop
 
-# function to find best choice based on current 3x3 state
-# NEEDS TO BE TESTED
+# Function to select best action in the current 3x3 state
+# Input: State from q-table, location of last fire in [x,y], epsilon for exploit/explore choice, full board
+# Output: qA = action index in the 3x3 state, bA = action indexed onto board in [x,y]
 def bestChoice(state, shotLocation, epsilon, board):
-    # Has to return value between 0-7 to update into q-table AND the board index
     qA = 0 # will be set to action we select
-    exp = random.random() #determine if you will exploit
-    acceptable = False
-    exploit = False
+    exp = random.random() # determine if you will exploit
+    acceptable = False # boolean for if space has already been selected
+    exploit = False # boolean for exploit or explore to be determined by comparison to exp
+    # Epsilon-greedy method to determine if agent will explore or exploit
     if exp > epsilon:
         exploit = True
+    #
     tempState = copy(state)
 
+    # Keep generating action choice until space has not been chosen before
     while not acceptable:
         if exploit:
             qA = np.argmax(tempState)
         else:
-            qA = random.randint(0, 7) #radnomly select a state
+            qA = random.randint(0, 7) #randomly select a state
 
         # Convert q-table indexing to full board indexing
         convert = [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]]
@@ -39,11 +44,10 @@ def bestChoice(state, shotLocation, epsilon, board):
         bY = shotLocation[1] + convert[qA][1]
         bA = [bX, bY]
 
+        # Check if selected space has been fired at already
         if board[bX][bY] == 0:
             acceptable = True
-            # print('it was true!')
-            # break
-        if exploit == True and acceptable == False:
+        if exploit and not acceptable:
             tempState[qA] = '-inf' #take the next best action (this won't happen?)
 
     return qA, bA
@@ -75,7 +79,7 @@ def takeAction(board, boardAction, shipLocations):
 
 def QLearning(forever, width, height):
     # in order: unchecked, miss, hit, sink
-    rewardMatrix = [0, -1, 0, 4]
+    rewardMatrix = [0, -1, 0, 3]
 
     alpha = 0.1
     epsilon = 0.05
@@ -115,9 +119,9 @@ def QLearning(forever, width, height):
                 S = copy(q[tempState[0]][tempState[1]][tempState[2]][tempState[3]][tempState[4]][tempState[5]][tempState[6]][tempState[7]])
                 # update board to have hit where we just hit
                 # choose Action from this board currQ
-                (qA, bA) = bestChoice(S, location, epsilon,board)
-                #qA is the action index to update S (the q table)
-                #ba is the action to compare to the whole board
+                (qA, bA) = bestChoice(S, location, epsilon, board)
+                # qA is the action index to update S (the q table)
+                # ba is the action to compare to the whole board
                 # take chosen Action, observe reward and next state
                 result = takeAction(board, bA, ships)
                 reward = rewardMatrix[result]
@@ -173,7 +177,7 @@ def QLearning(forever, width, height):
     return board, time_steps
 
 
-forever = 1000
+forever = 5000
 width = 20
 height = 20
 board, time_steps = QLearning(forever, width, height)
