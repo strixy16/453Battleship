@@ -19,9 +19,8 @@ def chooseAction(board, h, w):
 # NEEDS TO BE TESTED
 def bestChoice(state, shotLocation, epsilon, board):
     # Has to return value between 0-7 to update into q-table AND the board index
-    # epsilon will be used in here
     qA = 0 # will be set to action we select
-    exp = random.random() #determine if you will exploite
+    exp = random.random() #determine if you will exploit
     acceptable = False
     exploit = False
     if exp > epsilon:
@@ -74,14 +73,6 @@ def takeAction(board, boardAction, shipLocations):
     board[boardAction[0]][boardAction[1]] = 1
     return 1
 
-    # if action results in a miss, then reward is -1
-    # if action taken is a hit, need to check whole board for sunk
-        # if sunk, give reward that
-    pass
-
-def wasSunk(board):
-    pass
-
 def QLearning(forever, width, height):
     # in order: unchecked, miss, hit, sink
     rewardMatrix = [0, -1, 0, 4]
@@ -93,33 +84,23 @@ def QLearning(forever, width, height):
     # Q-table initialization
     q = np.zeros(shape=(3, 3, 3, 3, 3, 3, 3, 3, 8))
 
-    # state representation is
-    # b) if the last missile was a hit or a miss
-
-    # board = np.zeros((w, h))
-    # board = board + 0.04
-    # forever = 15000
-    # shipCount = 0
-    # location = chooseAction(board) # needs to be an x,y
-    # hit = False
     w = width
     h = height
     agent = Agent(w, h)
-    board = agent.enemyBoard  # enemy board
-    # forever = 50000
+
+    # Do we need the next line?
+    # board = agent.enemyBoard  # enemy board
+
     time_steps = []
     for i in range(forever):
-        # print('WE DID IT BITCHES')
         board = np.zeros((h, w))
         agent.ships = setShips(h, w)
         ships = agent.ships
         ships = [[[z+1 for z in y] for y in x] for x in ships]
-        # ships = agent.ships
         board = np.pad(board, 1, 'constant', constant_values=(1, 1))
-        # ships = [[[1, 2], [1, 3]], [[4, 5], [3, 5]], [[3, 4], [2, 4]]] # agent.ships  # enemy ships
         win = False
         shipCount = 0
-        location = chooseAction(board, h, w) # needs to be an x,y
+        location = chooseAction(board, h, w)
         hit = False
         time_steps_episode = 0
         while not win:
@@ -148,18 +129,13 @@ def QLearning(forever, width, height):
                 else:
                     temp2State[qA] = result
 
-
                 newS = q[temp2State[0]][temp2State[1]][temp2State[2]][temp2State[3]][temp2State[4]][temp2State[5]][temp2State[6]][temp2State[7]]
                 # from next state, observe what optimal value can be
                 maxnewS = max(newS)
 
                 # Q update
-                # print('before:', q[tempState[0]][tempState[1]][tempState[2]][tempState[3]][tempState[4]][tempState[5]][tempState[6]][
-                #         tempState[7]])
                 q[tempState[0]][tempState[1]][tempState[2]][tempState[3]][tempState[4]][tempState[5]][tempState[6]][tempState[7]][qA]\
                     = S[qA] + alpha*(reward + gamma*maxnewS - S[qA])
-                # print('after', q[tempState[0]][tempState[1]][tempState[2]][tempState[3]][tempState[4]][tempState[5]][tempState[6]][tempState[7]])
-
 
                 # if miss, 3x3 does not shift
                 if result == 1: #miss
