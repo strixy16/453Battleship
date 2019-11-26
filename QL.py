@@ -90,69 +90,94 @@ def takeAction(board, boardAction, shipLocations):
     board[boardAction[0]][boardAction[1]] = 1
     return 1
 
-
+# Main Q-learning function
+# Input: number of episodes to run, width and height of battleship board
+# Output: Final board at end of forever, array containing # of time steps averaged every 10 episodes
 def QLearning(forever, width, height):
-    # in order: unchecked, miss, hit, sink
-    rewardMatrix = [0, -1, 0, 1]
+    # Reward matrix, with values for unchecked, miss, hit, and sink
+    rewardMatrix = [0, -1, 0, 1] # unchecked value there because unchecked value on board is 0
 
+    # Step size
     alpha = 0.1
+    # Epsilon for epsilon-greedy action selection
     epsilon = 0.05
+    # Discount factor
     gamma = 0.9
 
     # Q-table initialization
     q = np.zeros(shape=(3, 3, 3, 3, 3, 3, 3, 3, 8))
 
+    # Generating Agent object to train
     w = width
     h = height
     agent = Agent(w, h)
 
+    # Array to save number of steps to sink a ship every 10 episodes
     time_steps = []
+    # Counter to check when 10 episodes have passed to save time_steps out
     episode_count = 0
+    # Stores number of steps to sink a ship for every episode
     temp_time_steps = []
 
+    # Loop for each episode in forever
     for i in range(forever):
         episode_count += 1
+        # Resetting board each episode
         board = np.zeros((h, w))
+        # Padding board with 1s to handle shots fired at edge needing a 3x3 surrounding
+        board = np.pad(board, 1, 'constant', constant_values=(1, 1))
+        # Setting ships randomly on board
         agent.ships = setShips(h, w)
         ships = agent.ships
+        # Add 1 to ship indexes to account for board padding
         ships = [[[z + 1 for z in y] for y in x] for x in ships]
-        board = np.pad(board, 1, 'constant', constant_values=(1, 1))
+        # Boolean for terminal state
         win = False
+        # Ship counter to figure out when game has been won
         shipCount = 0
+        # Randomly choosing first space to fire at
         location = chooseAction(board, h, w)
+        # Boolean to decide which policy to follow, random or "hit policy"
         hit = False
+        # Counter for number of steps to finish a game, will be divided by 3 to approximate # of steps to sink a ship
         time_steps_episode = 0
+        # Looping while not at terminal state
         while not win:
+            # If hit occurred, move into Q-learning
             if hit:
+                # Only counting steps to finish a game when in hit policy
                 time_steps_episode += 1
+                # Getting current state by looking at board around location that was just hit and getting a size 8 array
                 tempState = []
                 for y in range(location[1] - 1, location[1] + 2):
                     for x in range(location[0] - 1, location[0] + 2):
-                        if [x, y] != location:
+                        if [x, y] != location: # ignores square we just hit, only need locations around it
                             tempState.append(int(copy(board[x][y])))
-
+                # Extracting policy array from q-table using S
                 S = copy(
                     q[tempState[0]][tempState[1]][tempState[2]][tempState[3]][tempState[4]][tempState[5]][tempState[6]][
                         tempState[7]])
-                # update board to have hit where we just hit
-                # choose Action from this board currQ
-                (qA, bA) = bestChoice(S, location, epsilon, board)
+                # Call to bestChoice to choose A from S using epsilon-greedy
                 # qA is the action index to update S (the q table)
-                # ba is the action to compare to the whole board
-                # take chosen Action, observe reward and next state
+                # bA is the action to compare to the whole board
+                (qA, bA) = bestChoice(S, location, epsilon, board)
+                # Take chosen action and update board
                 result = takeAction(board, bA, ships)
+                # Determine reward to be given based on result
                 reward = rewardMatrix[result]
 
-                # get new state indices for q-table based on action taken
+                # Get new state indices for q-table based on action taken
                 temp2State = copy(tempState)
+                # If result is sunk, the value to be put in q-table is 2. 3 was only for reward indexing
                 if result == 3:
                     temp2State[qA] = 2
                 else:
                     temp2State[qA] = result
 
+                # Get S' from q-table using temp2State
                 newS = q[temp2State[0]][temp2State[1]][temp2State[2]][temp2State[3]][temp2State[4]][temp2State[5]][
                     temp2State[6]][temp2State[7]]
-                # from next state, observe what optimal value can be
+                # From S', observe what optimal value will be for max(a)Q(S',a)
                 maxnewS = max(newS)
 
                 # Q update
@@ -160,59 +185,81 @@ def QLearning(forever, width, height):
                     tempState[7]][qA] \
                     = S[qA] + alpha * (reward + gamma * maxnewS - S[qA])
 
-                # if miss, 3x3 does not shift
-                if result == 1:  # miss
+                # If action was miss, do not shift 3x3
+                if result == 1:
                     S = newS
-                elif result == 2:  # hit but not a sink
+                # If action was hit but not sink, recenter S on the new hit
+                elif result == 2:
                     location = bA
-                elif result == 3:  # sunk the ship
+                # If action was a sink
+                elif result == 3:
+                    # Sunk ship count increases
                     shipCount = shipCount + 1
+                    # Checking if game has been won (always use 3 ships right now)
                     if shipCount == 3:
-                        win = True  # terminal state has been reached
-                        temp_time_steps.append(time_steps_episode / 3)  # the game episode is over so average for all ships
-                        hit = True
+                        # Terminal state has been reached
+                        win = True
+                        # Average total steps taken to figure out how long it takes to sink 1 ship
+                        temp_time_steps.append(time_steps_episode / 3)
+                        # Average step count over 10 episodes for graphs
                         if episode_count == 10:
                             time_steps.append(np.mean(temp_time_steps))
+                            # Reset values for next 10 episodes
                             temp_time_steps = []
                             episode_count = 0
-
-
+                    # Game hasn't ended yet, still ships to sink
                     else:
+                        # Return to random policy when ship has been sunk
                         hit = False
+                        # Choosing an action to take next time step
                         location = chooseAction(board, h, w)
-            # MISS
+
+            # If miss occurred or first iteration, use random policy
             else:
-                # randomly choose an action
+                # Take random chosen action and get result as hit, miss, or sink
                 result = takeAction(board, location, ships)
-                if result == 2:  # hit
+                # If action was hit but not sink, set hit to true so we move into Q-learning policy
+                if result == 2:
                     hit = True
-                elif result == 3:  # sunk
+                # If action was a sink
+                elif result == 3:
+                    # Sunk ship count increases
                     shipCount = shipCount + 1
-                    time_steps_episode += 1  # it took 1 attempt to sink the ship
+                    # It took 1 attempt to sink the ship
+                    time_steps_episode += 1
+                    # Checking if game has been won (always use 3 ships right now)
                     if shipCount == 3:
-                        win = True  # terminal state has been reached
-                        temp_time_steps.append(time_steps_episode / 3)  # the game episode is over so average for all ships
-                        hit = True
+                        # Terminal state has been reached
+                        win = True
+                        # Average total steps taken to figure out how long it takes to sink 1 ship
+                        temp_time_steps.append(time_steps_episode / 3)
+                        # Average step count over 10 episodes for graphs
                         if episode_count == 10:
                             time_steps.append(np.mean(temp_time_steps))
+                            # Reset values for next 10 episodes
                             temp_time_steps = []
                             episode_count = 0
+                # If action was miss, randomly choose next action
                 else:
                     location = chooseAction(board, h, w)
 
-                # check if action was hit or miss and update board accordingly and hit boolean
     return board, time_steps
 
-
+# Main function, returns the final board
 def main():
-    forever = 5000
+    # Number of episodes to train with
+    forever = 1000
+    # Size of board
     width = 20
     height = 20
-    board, time_steps= QLearning(forever, width, height)
-    x = np.array([i for i in range(1, forever+1, 10)])
+    # Run Q-learning
+    board, time_steps = QLearning(forever, width, height)
+    # Print out mean of all the time step measurements
     print(np.mean(time_steps))
-    # return np.mean(time_steps)
 
+    # Plotting convergence
+    # Generating values for x axis
+    x = np.array([i for i in range(1, forever + 1, 10)])
     plt.figure(1)
     plt.plot(x, time_steps)
     plt.xlabel('Number of Episodes')
@@ -228,8 +275,10 @@ def main():
     return realBoard
 
 main()
+
+# Statistical collection - leave commented out
 # mts = []
-# for i in range(5):
+# for _ in range(5):
 #     print(main())
 #     mts.append(main())
 #
