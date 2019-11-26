@@ -309,20 +309,20 @@ def play(forever,w,h):
     plt.ylabel('Time Steps')
     plt.title('Convergence of Monte Carlo')
     plt.show()
-
-    plt.figure(1)
-    plt.scatter(episodes, pts, alpha = 0.2, s = 10)
-    plt.xlabel('Number of Episodes')
-    plt.ylabel('Time Steps')
-    plt.title('Convergence of Monte Carlo')
-    plt.show()
+##
+##    plt.figure(1)
+##    plt.scatter(episodes, pts, alpha = 0.2, s = 10)
+##    plt.xlabel('Number of Episodes')
+##    plt.ylabel('Time Steps')
+##    plt.title('Convergence of Monte Carlo')
+##    plt.show()
     return board        
 
 def main():
     w = 20
     h = 20
     global q
-    forever = 500
+    forever = 1000
     
     for i in range(1):
         board = play(forever, w, h)
