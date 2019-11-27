@@ -246,9 +246,9 @@ def QLearning(forever, width, height):
     return board, time_steps
 
 # Main function, returns the final board
-def main():
+def main(episodes):
     # Number of episodes to train with
-    forever = 1000
+    forever = episodes
     # Size of board
     width = 20
     height = 20

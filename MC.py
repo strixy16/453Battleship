@@ -308,14 +308,14 @@ def play(forever,w,h):
     
     return board        
 
-def main():
+def main(episodes):
     # set dimensions of the board
     w = 20
     h = 20
     
     global q
     # number of epochs
-    forever = 1000
+    forever = episodes
 
     # print final board
     # for i in range(1):
