@@ -317,11 +317,11 @@ def main():
     forever = 3000
 
     # print final board
-    for i in range(1):
-        board = play(forever, w, h)
-        for i in board:
-            print(i)
-        print()
+    # for i in range(1):
+    #     board = play(forever, w, h)
+    #     for i in board:
+    #         print(i)
+    #     print()
     
 
 main()

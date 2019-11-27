@@ -1,4 +1,4 @@
-import MC2
+import MC
 import QL
 from board import tkinterInit, drawBoard, tkMainLoop
 from agents import Agent
@@ -27,7 +27,7 @@ def randomAgent(agent):
 		actionSet.remove(action)
 	
 if __name__ == '__main__':
-	b1 = MC2.main()
+	b1 = MC.main()
 	b2 = QL.main()
 	rAgent = Agent(h,w)
 	randomAgent(rAgent)
