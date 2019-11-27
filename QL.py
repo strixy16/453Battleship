@@ -255,12 +255,12 @@ def main():
     # Run Q-learning
     board, time_steps = QLearning(forever, width, height)
     # Print out mean of all the time step measurements
-    print(np.mean(time_steps))
+    # print(np.mean(time_steps))
 
     # Plotting convergence
     # Generating values for x axis
     x = np.array([i for i in range(1, forever + 1, 10)])
-    plt.figure(1)
+    plt.figure(2)
     plt.plot(x, time_steps)
     plt.xlabel('Number of Episodes')
     plt.ylabel('Time Steps')
@@ -271,10 +271,8 @@ def main():
     for i in range(1, len(board) - 1):
         realBoard.append(board[i][1:16])
 
-    print(realBoard)
     return realBoard
 
-main()
 
 # Statistical collection - leave commented out
 # mts = []

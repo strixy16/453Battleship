@@ -1,3 +1,4 @@
+# Implementing Monte-Carlo agent
 import random
 import numpy as np
 from agents import Agent
@@ -314,14 +315,12 @@ def main():
     
     global q
     # number of epochs
-    forever = 3000
+    forever = 1000
 
     # print final board
     # for i in range(1):
-    #     board = play(forever, w, h)
-    #     for i in board:
-    #         print(i)
-    #     print()
+    board = play(forever, w, h)
+    # for i in board:
+    #     print(i)
+    # print()
     
-
-main()

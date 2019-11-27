@@ -1,11 +1,13 @@
+# This was used to generate the competition graphs. Error may occur.
+
 import MC
 import QL
 from board import tkinterInit, drawBoard, tkMainLoop
 from agents import Agent
 import random
 
-h = 15
-w = 15
+h = 20
+w = 20
 
 def checkWin(ships, board):
 	win = True
@@ -21,7 +23,7 @@ def randomAgent(agent):
 		action = random.choice(tuple(actionSet))
 		y = int(action/h)
 		x = action % w
-		if not MC2.checkHit([y,x], agent.ships, agent.enemyBoard):
+		if not MC.checkHit([y,x], agent.ships, agent.enemyBoard):
 			agent.enemyBoard[y][x] = 1		
 		win = checkWin(agent.ships, agent.enemyBoard)
 		actionSet.remove(action)
@@ -29,9 +31,9 @@ def randomAgent(agent):
 if __name__ == '__main__':
 	b1 = MC.main()
 	b2 = QL.main()
-	rAgent = Agent(h,w)
-	randomAgent(rAgent)
-	print(rAgent.enemyBoard)
-	tkinterInit()
-	drawBoard(b1, b2, h, w)
-	tkMainLoop()
+	# rAgent = Agent(h,w)
+	# randomAgent(rAgent)
+	# print(rAgent.enemyBoard)
+	# tkinterInit()
+	# drawBoard(b1, b2, h, w)
+	# tkMainLoop()
