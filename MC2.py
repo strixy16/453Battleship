@@ -293,25 +293,25 @@ def play(forever,w,h):
             else:
                 board[y][x] = 1 
         
-        counter[countTo10] = steps
-        countTo10 += 1
-        steps = 0
-        if countTo10 == 10:
-            countTo10 = 0
-            pts[myCount] = statistics.mean(counter)
-            myCount += 1
-    # plot pts and i
-    #print(pts)
-    episodes = np.array([i for i in range(1, forever+1, 10)])
-    pts = np.array(pts)
-    #print(episodes)
-    plt.figure(1)
-    plt.plot(episodes, pts)
-    
-    plt.xlabel('Number of Episodes')
-    plt.ylabel('Time Steps')
-    plt.title('Convergence of Monte Carlo')
-    plt.show()
+##        counter[countTo10] = steps
+##        countTo10 += 1
+##        steps = 0
+##        if countTo10 == 10:
+##            countTo10 = 0
+##            pts[myCount] = statistics.mean(counter)
+##            myCount += 1
+##    # plot pts and i
+##    #print(pts)
+##    episodes = np.array([i for i in range(1, forever+1, 10)])
+##    pts = np.array(pts)
+##    #print(episodes)
+##    plt.figure(1)
+##    plt.plot(episodes, pts)
+##    
+##    plt.xlabel('Number of Episodes')
+##    plt.ylabel('Time Steps')
+##    plt.title('Convergence of Monte Carlo')
+##    plt.show()
 ##
 ##    plt.figure(1)
 ##    plt.scatter(episodes, pts, alpha = 0.2, s = 10)
@@ -382,7 +382,7 @@ def main():
 ##	plt.ylabel('Time Steps')
 ##	plt.title('Convergence of Monte Carlo')
 ##	plt.show()
-	return board		
+        return board
 
 ##def main():
 ##	w = 15
@@ -397,3 +397,4 @@ def main():
 ##		print()
 ##	return board	
 
+main()
