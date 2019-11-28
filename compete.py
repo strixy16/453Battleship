@@ -91,7 +91,6 @@ if __name__ == '__main__':
 		mcAverageMoves.append(aveMC)
 		qlAverageMoves.append(aveQL)
 		rAverageMoves.append(aveR)
-		print(i)	
 	plotWinPercent("MC", "QL", mcAverageMoves, qlAverageMoves, 1000)
 	plotWinPercent("MC", "Random", mcAverageMoves, rAverageMoves, 1000)
 	plotWinPercent("QL", "Random", qlAverageMoves, rAverageMoves, 1000)
