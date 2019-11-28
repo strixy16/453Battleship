@@ -5,17 +5,19 @@ import random
 from statistics import mean
 import matplotlib.pyplot as plt
 
-h = 15
-w = 15
+#please comment out the plotting functions in MC and QL before running this
 
-def checkWin(ships, board):
+h = 20
+w = 20
+
+def checkWin(ships, board): #check if an agent has won
 	win = True
 	for i in range(len(ships)):
 		for j in range(len(ships[i])):
 			win = win and board[ships[i][j][0]][ships[i][j][1]] == 2
 	return win
 
-def randomAgent(agent):
+def randomAgent(agent): #code for the random agent playing the game
 	win = False
 	actionSet = { i for i in range(w*h)}
 	while not win:
@@ -27,7 +29,7 @@ def randomAgent(agent):
 		win = checkWin(agent.ships, agent.enemyBoard)
 		actionSet.remove(action)
 
-def totalMoves(board):
+def totalMoves(board): #calculate the total moves it took to win
 	tMoves = 0
 	for i in range(len(board)):
 		for j in range(len(board[i])):
@@ -35,7 +37,7 @@ def totalMoves(board):
 				tMoves += 1
 	return tMoves
 
-def plotWinPercent(a1Name, a2Name, a1Moves, a2Moves, episodes):
+def plotWinPercent(a1Name, a2Name, a1Moves, a2Moves, episodes): #plotting win rates against each other
 	a1WinPercent = []
 	a2WinPercent = []
 	eps = [ i for i in range(150,3001,150) ]
@@ -48,11 +50,12 @@ def plotWinPercent(a1Name, a2Name, a1Moves, a2Moves, episodes):
 				a1WinSum += 1
 			elif a2Moves[i][j] < a1Moves[i][j]:
 				a2WinSum += 1
-			else:
+			else: #same number of moves
 				if random.random() >= 0.5:
 					a1WinSum += 1
 				else:
 					a2WinSum += 1
+		#gets win rate for certain episode
 		a1WinPercent.append((a1WinSum/len(a1Moves[0])))
 		a2WinPercent.append((a2WinSum/len(a1Moves[0])))
 	
@@ -88,12 +91,10 @@ if __name__ == '__main__':
 			rMoves = totalMoves(rAgent.enemyBoard)
 			aveR.append(rMoves)
 
+		#arrays of shape (20,20). 20 episodes and 20 games per episode
 		mcAverageMoves.append(aveMC)
 		qlAverageMoves.append(aveQL)
 		rAverageMoves.append(aveR)
 	plotWinPercent("MC", "QL", mcAverageMoves, qlAverageMoves, 1000)
 	plotWinPercent("MC", "Random", mcAverageMoves, rAverageMoves, 1000)
 	plotWinPercent("QL", "Random", qlAverageMoves, rAverageMoves, 1000)
-	#tkinterInit()
-	#drawBoard(b1, b2, h, w)
-	#tkMainLoop()
