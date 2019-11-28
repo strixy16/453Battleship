@@ -323,4 +323,4 @@ def main(episodes):
     # for i in board:
     #     print(i)
     # print()
-    
+    return board    
